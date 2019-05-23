@@ -1,0 +1,47 @@
+Java打包Docker镜像两种方式
+1.本地打包，推送远程阿里云镜像仓库（适合本地有docker）（建仓库时选本地仓库构建）
+dockerfile文件（jar的名字）
+FROM openjdk:8-jdk-alpine  //基础镜像
+VOLUME /tmp  //容器内挂载的目录
+ADD applications-service-0.0.1-SNAPSHOT.jar app.jar  //jar
+ENV TZ Asia/Shanghai //时区
+EXPOSE 8005 //对外暴露的端口号
+EXPOSE 9091
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]  //策略
+
+编译的jar包
+
+两个放一起
+
+
+ <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <configuration>
+                    <!-- 注意imageName一定要是符合正则[a-z0-9-_.]的，否则构建不会成功 -->
+                    <!-- 详见：https://github.com/spotify/docker-maven-plugin    Invalid repository name ... only [a-z0-9-_.] are allowed-->
+                    <imageName>uc-applications-microservice-api</imageName>
+                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                    <imageTags>
+                        <!--docker的tag为项目版本号、latest-->
+                        <imageTag>2.2.9-fat</imageTag>
+                    </imageTags>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+
+方法.配置maven插件，maven build执行docker:build
+
+2.使用阿里云容器镜像服务打包（本地无docker）（选远程代码构建）
+1.上传代码到阿里云code （包含jar）
+2.配置构建规则（dockerfile的目录）
+
+最关键的就是jar 
+
