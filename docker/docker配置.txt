@@ -1,17 +1,17 @@
-Java´ò°üDocker¾µÏñÁ½ÖÖ·½Ê½
-1.±¾µØ´ò°ü£¬ÍÆËÍÔ¶³Ì°¢ÀïÔÆ¾µÏñ²Ö¿â£¨ÊÊºÏ±¾µØÓĞdocker£©£¨½¨²Ö¿âÊ±Ñ¡±¾µØ²Ö¿â¹¹½¨£©
-dockerfileÎÄ¼ş£¨jarµÄÃû×Ö£©
-FROM openjdk:8-jdk-alpine  //»ù´¡¾µÏñ
-VOLUME /tmp  //ÈİÆ÷ÄÚ¹ÒÔØµÄÄ¿Â¼
+Javaæ‰“åŒ…Dockeré•œåƒä¸¤ç§æ–¹å¼
+1.æœ¬åœ°æ‰“åŒ…ï¼Œæ¨é€è¿œç¨‹é˜¿é‡Œäº‘é•œåƒä»“åº“ï¼ˆé€‚åˆæœ¬åœ°æœ‰dockerï¼‰ï¼ˆå»ºä»“åº“æ—¶é€‰æœ¬åœ°ä»“åº“æ„å»ºï¼‰
+dockerfileæ–‡ä»¶ï¼ˆjarçš„åå­—ï¼‰
+FROM openjdk:8-jdk-alpine  //åŸºç¡€é•œåƒ
+VOLUME /tmp  //å®¹å™¨å†…æŒ‚è½½çš„ç›®å½•
 ADD applications-service-0.0.1-SNAPSHOT.jar app.jar  //jar
-ENV TZ Asia/Shanghai //Ê±Çø
-EXPOSE 8005 //¶ÔÍâ±©Â¶µÄ¶Ë¿ÚºÅ
+ENV TZ Asia/Shanghai //æ—¶åŒº
+EXPOSE 8005 //å¯¹å¤–æš´éœ²çš„ç«¯å£å·
 EXPOSE 9091
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]  //²ßÂÔ
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]  //ç­–ç•¥
 
-±àÒëµÄjar°ü
+ç¼–è¯‘çš„jaråŒ…
 
-Á½¸ö·ÅÒ»Æğ
+ä¸¤ä¸ªæ”¾ä¸€èµ·
 
 
  <plugin>
@@ -19,12 +19,12 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"] 
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.4.13</version>
                 <configuration>
-                    <!-- ×¢ÒâimageNameÒ»¶¨ÒªÊÇ·ûºÏÕıÔò[a-z0-9-_.]µÄ£¬·ñÔò¹¹½¨²»»á³É¹¦ -->
-                    <!-- Ïê¼û£ºhttps://github.com/spotify/docker-maven-plugin    Invalid repository name ... only [a-z0-9-_.] are allowed-->
+                    <!-- æ³¨æ„imageNameä¸€å®šè¦æ˜¯ç¬¦åˆæ­£åˆ™[a-z0-9-_.]çš„ï¼Œå¦åˆ™æ„å»ºä¸ä¼šæˆåŠŸ -->
+                    <!-- è¯¦è§ï¼šhttps://github.com/spotify/docker-maven-plugin    Invalid repository name ... only [a-z0-9-_.] are allowed-->
                     <imageName>uc-applications-microservice-api</imageName>
                     <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
                     <imageTags>
-                        <!--dockerµÄtagÎªÏîÄ¿°æ±¾ºÅ¡¢latest-->
+                        <!--dockerçš„tagä¸ºé¡¹ç›®ç‰ˆæœ¬å·ã€latest-->
                         <imageTag>2.2.9-fat</imageTag>
                     </imageTags>
                     <resources>
@@ -37,11 +37,15 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"] 
                 </configuration>
             </plugin>
 
-·½·¨.ÅäÖÃmaven²å¼ş£¬maven buildÖ´ĞĞdocker:build
+æ–¹æ³•.é…ç½®mavenæ’ä»¶ï¼Œmaven buildæ‰§è¡Œdocker:build
 
-2.Ê¹ÓÃ°¢ÀïÔÆÈİÆ÷¾µÏñ·şÎñ´ò°ü£¨±¾µØÎŞdocker£©£¨Ñ¡Ô¶³Ì´úÂë¹¹½¨£©
-1.ÉÏ´«´úÂëµ½°¢ÀïÔÆcode £¨°üº¬jar£©
-2.ÅäÖÃ¹¹½¨¹æÔò£¨dockerfileµÄÄ¿Â¼£©
+2.ä½¿ç”¨é˜¿é‡Œäº‘å®¹å™¨é•œåƒæœåŠ¡æ‰“åŒ…ï¼ˆæœ¬åœ°æ— dockerï¼‰ï¼ˆé€‰è¿œç¨‹ä»£ç æ„å»ºï¼‰
+1.ä¸Šä¼ ä»£ç åˆ°é˜¿é‡Œäº‘code ï¼ˆåŒ…å«jarï¼‰
+2.é…ç½®æ„å»ºè§„åˆ™ï¼ˆdockerfileçš„ç›®å½•ï¼‰
 
-×î¹Ø¼üµÄ¾ÍÊÇjar 
+æœ€å…³é”®çš„å°±æ˜¯jar 
 
+// åˆ—å‡ºå®‰è£…çš„è½¯ä»¶ï¼ˆ|é‡å®šå‘ï¼‰
+yum list install | grep docker
+// åˆ é™¤dockerè½¯ä»¶
+yum -y remove docker
