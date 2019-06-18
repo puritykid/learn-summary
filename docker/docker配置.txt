@@ -3,7 +3,7 @@ Java打包Docker镜像两种方式
 dockerfile文件（jar的名字）
 FROM openjdk:8-jdk-alpine  //基础镜像
 VOLUME /tmp  //容器内挂载的目录
-ADD applications-service-0.0.1-SNAPSHOT.jar app.jar  //jar
+ADD applications-service-0.0.1-SNAPSHOT.jar app.jar  //运行mvn install打出的jar
 ENV TZ Asia/Shanghai //时区
 EXPOSE 8005 //对外暴露的端口号
 EXPOSE 9091
@@ -49,3 +49,10 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"] 
 yum list install | grep docker
 // 删除docker软件
 yum -y remove docker
+
+需要在settings里面加上
+
+    <activeProfiles>
+        <activeProfile>nexus</activeProfile>
+    </activeProfiles>
+
