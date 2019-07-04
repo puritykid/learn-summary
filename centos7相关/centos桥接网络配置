@@ -1,0 +1,48 @@
+vmware安装centos7及配置网络（桥接）
+1.首先下载vmware安装
+2.下载centos7并安装到vmware(直接下一步)
+3.在vmware上选择编辑设置网络连接状态为桥接
+4.启动安装在vmware上的centos7并设置网络
+	vi /etc/sysconfig/network-scripts/ifcfg-eno333
+	添加如下内容：
+	TYPE=Ethernet                                                    
+    PROXY_METHOD=none                                                
+    BROWSER_ONLY=no   
+	#改为静态
+    BOOTPROTO=static                                                 
+    DEFROUTE=yes                                                     
+    IPV4_FAILURE_FATAL=no                                            
+    IPV6INIT=yes                                                     
+    IPV6_AUTOCONF=yes                                                
+    IPV6_DEFROUTE=yes                                                
+    IPV6_FAILURE_FATAL=no                                            
+    IPV6_ADDR_GEN_MODE=stable-privacy                                
+    NAME=ens33                                                       
+    UUID=d57f50e5-5ccf-47e7-8060-986bfc1c43a9                        
+    DEVICE=ens33
+    #修改此处为yes	
+    ONBOOT=yes
+	#添加自己电脑上的网关、域名等地址
+    IPADDR=192.168.4.111                                             
+    NETMASK=255.255.255.0                                            
+    GATEWAY=192.168.4.1                                              
+    DNS1=202.102.134.68                                              
+    DNS2=202.102.128.68   
+5.重启网络
+		service network restart
+6.在自己windows上免密登录设置
+	<1>windows命令行窗口执行以下命令
+		ssh-keygen -t rsa
+		连续回车三下会在：c:/users/.ssh下生成公钥和私钥
+		ssh root@192.168.4.111回车
+		输入密码登录成功会在c:/users/.ssh下生成一个文件
+		使用exit退出远程登录
+		cd到.ssh的文件夹下，通过scp上传公钥到远程服务器
+		scp id_rsa.pub root@192.168.4.111:~/.ssh
+		登录远程服务器192.168.4.111
+		cd ~/.ssh
+		mkdir authorized_keys
+		cat id_rsa.pub >> authorized_keys
+		
+7.下次再windows上登录就可以免密登录了
+	
