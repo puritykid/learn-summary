@@ -1,0 +1,66 @@
+一、docker 安装
+Docker 要求 CentOS 系统的内核版本高于 3.10
+1.首先通过 uname -r 命令查看你当前的内核版本
+2.使用su root切换用户权限到root
+3.使用yum update确保 yum 包更新到最新。(备注：以下指令执行时会弹出很多内容，只截取了一部分图片，需要一定时间，等待即可)，出现统计信息提示是否确认，输入y并按下Enter。
+4.卸载旧版本(如果安装过旧版本的话，没安装过直接跳过)
+	yum remove docker docker-common docker-selinux docker-engine
+5.安装一些必要的系统工具：
+	yum install -y yum-utils device-mapper-persistent-data lvm2
+6.添加软件源信息：
+	yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+7.安装 docker-ce：
+	yum -y install docker-ce
+8.启动并加入开机启动
+	systemctl start docker
+	systemctl enable docker
+9.验证安装是否成功(有client和service两部分表示docker安装启动都成功了)
+	docker version
+	如果失败：重新执行第4步，接着执行第7步
+二.docker安装mysql将数据挂在宿主机
+1.在虚拟机创建本地目录（/是指在根目录下）
+	mkdir -p /data/mysql/datadir
+2.新建运行并取名为一个mysql5.7的docker服务 把端口映射到3306 MySQL存储路径放到新建的datadir文件夹中，把配置文件放到conf.d中（这里的/var.... 和/etc ....是docker服务默认位置，一重启就没了，所以我们要换掉），定义root账户密码为root， 运行镜像是MySQL：5.7
+	docker run --name mysql5.7 -p 3306:3306 -v /data/mysql/datadir:/var/lib/mysql -v /data/mysql/conf.d:/etc/mysql/conf.d -eMYSQL_ROOT_PASSWORD=root -d mysql:5.7
+3.进入容器内部：
+	docker exec -it mysql5.7 /bin/bash
+4.进入mysql命令行
+	mysql –uroot –p
+5.现在你可以创建项目需要的数据库和相关的表了。	
+
+三、docker安装tomcat
+1.新建并运行一个名为tomcat01的服务 把端口映射到8080，连接到刚才创建数据库服务器的容器mysql5.7
+	docker run -d -p 8080:8080 --name tomcat01 --link mysql5.7 -d tomcat
+2．在浏览器输入虚拟机ip地址+：tomcat端口号8080
+
+四、部署Javaweb项目
+1.  在根目录下新建文件夹webapps(用来存放.war文件)
+	mkdir  /webapps
+2.通过U盘将目标文件拷贝到根目录下的webapps
+3.将根目录下webapps里的目标文件复制到tomcat
+	docker cp /webapps/bookManagement.war tomcat01:/usr/local/tomcat/webapps
+	docker exec -it tomcat01 /bin/bash
+	cd webapps
+	ls       //（查看webapps文件夹里的文件）此时目标文件bookManagement已在/usr/local/tomcat/webapps路径下
+4.复制成功后，重新启动tomcat01容器，会自动完成目标文件的部署（备注：启动tomcat01之前确保mysql5.7是启动的，由于tomcat01连接了mysql5.7）
+	docker restart tomcat01
+5.打开浏览器在地址栏输入虚拟机地址：8080/项目名称就可以访问了（备注如果这里不知道虚拟机ip地址是什么请回看3.docker安装tomcat的第2步）
+
+将虚拟机的ip设置为静态ip
+Docker 常用指令：
+docker images        //查看本地镜像
+docker ps -a         //查看所有容器
+docker ps            //查看当前有哪些容器正在运行
+docker rmi 镜像名称/镜像ID    删除镜像
+docker rm 容器名称/容器ID     删除容器（删除前必须先停止容器的运行）
+docker start 容器名称/容器ID      启动一个容器
+docker restart 容器名称/容器ID     重启一个容器
+docker stop 容器名称/容器ID     停止一个在运行的容器
+docker run -d -p 8081:8080 --name tomcat01 tomcat 利用镜像创建一个容器
+-d: 在后台运行
+-p:映射端口号 这里将tomcat01的端口8080映射到宿主机的8081端口
+--name: 为容器取名字
+tomcat: 本地镜像仓库的镜像 
+ctrl+d 退出容器且关闭,
+ctrl+p+q 退出容器但不关闭,
+docker exec -it 容器名称/容器ID /bin/bash：进入容器
