@@ -1,0 +1,57 @@
+1.什么是cdc？
+	变更数据捕获（Change Data Capture ，简称 CDC）记录 SQL Server 表的插入、更新和删除活动。SQLServer的操作会写日志，这也是CDC捕获数据的来源。开启cdc的源表在插入、更新和删除活动时会插入数据到日志表中。cdc通过捕获进程将变更数据捕获到变更表中，通过cdc提供的查询函数，我们可以捕获这部分数据。
+2.开启CDC的必要条件
+	1>sqlserver 2008 以上版本
+	2>需要开启代理服务（作业）
+	3>磁盘要有足够的空间，保存日志文件
+	4>表必须要有主键或者是唯一索引
+3.给数据库添加文件、文件组
+4.执行命令开启cdc
+
+	-- 指定数据库
+	USE [User-Stage];
+	-- 查询那些数据库使用了cdc
+	select * from sys.databases where is_cdc_enabled = 1
+	-- 查询数据库cdc开启状态
+	select is_cdc_enabled from sys.databases where name='User-Stage';
+	-- 查看表是否启用了cdc
+	select name, is_tracked_by_cdc from sys.tables where object_id = OBJECT_ID('dbo.test');
+	-- 关闭指定库的cdc
+	EXEC sys.sp_cdc_disable_db;
+	-- 开启指定数据库的cdc(不开启下面语句无法执行)
+	EXEC sys.sp_cdc_enable_db;
+	-- 开启指定表的cdc (多张表通过更换表名和实例名重复执行即可)
+	EXEC sys.sp_cdc_enable_table
+					@source_schema = 'dbo', -- 组织架构
+					@source_name = 'test',  -- 组织架构下的表名
+					@capture_instance = 'dbo_test1', --捕获实例
+					@supports_net_changes = 1, -- 是否对捕获实例启用禁用更改
+					@role_name = NULL,
+					@index_name = NULL,
+					@captured_column_list = NULL,
+					@filegroup_name = 'CDC'  -- 文件组
+	注：每张表最多创建两个捕获实例，多余两个会报源表 'dbo.test' 已存在两个捕获实例。一个表最多只能有两个捕获实例。
+	-- 禁用指定表cdc
+	EXEC sys.sp_cdc_disable_table
+					@source_schema = 'dbo',
+					@source_name = 'test',
+					@capture_instance = 'dbo_test'
+	-- 创建清理作业
+	这个清理作业会将变更后的数据进行清理,清理时间是每过2880分清理一次，每次清理上限4000条，防止大量的数据变更操作将存储变更数据的文件盘打满
+
+
+
+
+-- 开启指定表cdc属性说明
+	sys.sp_cdc_enable_table 
+		[ @source_schema = ] 'source_schema', ---表所属的架构名
+		[ @source_name = ] 'source_name' ,----表名
+		[ @role_name = ] 'role_name'---是用于控制更改数据访问的数据库角色的名称。
+		[,[ @capture_instance = ] 'capture_instance' ]--是用于命名变更数据捕获对象的捕获实例的名称，这个名称在后面的存储过程和函数中需要经常用到。
+		[,[ @supports_net_changes = ] supports_net_changes ]---指示是否对此捕获实例启用净更改查询支持如果此表有主键，或者有已使用 @index_name 参数进行标识的唯一索引，则此参数的默认值为 1。否则，此参数默认为 0。
+		[,[ @index_name = ] 'index_name' ]--用于唯一标识源表中的行的唯一索引的名称。index_name 为 sysname，并且可以为 NULL。如果指定，则 index_name 必须是源表的唯一有效索引。如果指定 index_name，则标识的索引列优先于任何定义的主键列，就像表的唯一行标识符一样。
+		[,[ @captured_column_list = ] 'captured_column_list' ]--需要对哪些列进行捕获。captured_column_list 的数据类型为 nvarchar(max)，并且可以为 NULL。如果为 NULL，则所有列都将包括在更改表中。
+		[,[ @filegroup_name = ] 'filegroup_name' ]--是要用于为捕获实例创建的更改表的文件组。
+		[,[ @partition_switch = ] 'partition_switch' ]--指示是否可以对启用了变更数据捕获的表执行 ALTER TABLE 的 SWITCH PARTITION 命令。allow_partition_switch 为 bit，默认值为 1。
+	
+	博客地址：https://www.cnblogs.com/gered/p/10756397.html#_label0
