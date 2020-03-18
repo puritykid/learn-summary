@@ -22,3 +22,14 @@ sudo systemctl enable docker
 docker version
 
 注：安装过旧版本再次安装需要把之前旧的版本卸载干净才能再次安装
+docker安装之后，默认的镜像拉取存放目录可能空降比较小，可以通过新建目录/home/data/docker，然后将/var/lib/docker内容cp到新建目录，并备份/var/lib/docker内容，建立/var/lib/docker和/home/data/docker的连接
+ln -s /home/data/docker /var/lib/docker
+
+docker中安装mysql需要修改配置文件，需要执行一下操作
+docker exec -it containerId /bin/bash
+cd /etc/mysql
+apt-get update
+apt-get install vim
+vi my.cnf
+保存并退出之后重启容器实例
+docker restart containerId
