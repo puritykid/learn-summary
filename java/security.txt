@@ -1,0 +1,17 @@
+认证：根据用户输入的账号密码验证用户的合法性。
+授权：对已经认证通过的用户的权限进行检查，有访问该资源的权限则继续访问该资源，没有则拒绝访问该资源。
+SecurityContextPersiste nceFilter：负责从securityContextRepository获取或存储SecurityContext,代表用户安全和认证通过的用户。
+BasicAuthenticationFilter:监控HTTP基础认证信息并进行处理
+RequestCacheAwareFilter：重新恢复因为用户登录打断的请求
+
+AbsrtactAuthenticationProcessingFilter: 处理包含认证信息的请求，将认证信息封装进一个部分完整的Authentication中进行传递
+AuthenticationManager：检验用户信息，检查通过会将全新信息封装到Authentication对象，包含权限信息。
+AuthenticationProvider ：为AuthenticationManager提供凭证校验，AuthenticationProvider主要用来存储凭证信息（来自于数据库或其他存储）
+Authentication:存储了用户的详细信息
+getPrincipal():返回安全唯一标识
+getCredentials(): 返回安全实体凭证
+getAuthorities():权限集合
+getDetails():安全实体细节信息
+
+Authentication: 存储安全实体标识、密码、认证请求上下文，还可能包含UserDetails的实例
+UserDetails:安全实体概况信息，用户名、电话、邮箱
